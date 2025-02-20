@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <!-- (c)taisukef CC BY  http://fukuno.jig.jp/ -->
-<title>findhydrant 消火栓を探す - 彦根市オープンデータ</title>
+<title>findhydrant 消火栓を探す - 高島市オープンデータ</title>
 <meta property="og:image" content="ss.jpg">
 <link rel="apple-touch-icon" href="img/icon_hydrant.png">
 <link rel="icon" href="img/icon_hydrant.png">
@@ -14,7 +14,14 @@ import { Geo3x3 } from "https://geo3x3.com/Geo3x3.js";
 import { ArrayUtil } from "https://js.sabae.cc/ArrayUtil.js";
 import { dms2d, sdms2d } from "https://code4fukui.github.io/DMS/DMS.js";
 
-const fn = "syoukasen_20200401.csv";
+const fns = [
+  "252123_fire_hydrant_format_adogawa.csv",
+  "252123_fire_hydrant_format_imazu.csv",
+  "252123_fire_hydrant_format_kutsuki.csv",
+  "252123_fire_hydrant_format_makino.csv",
+  "252123_fire_hydrant_format_shinasahi.csv",
+  "252123_fire_hydrant_format_takashima.csv",
+];
 //const dlat = 0.01 / 2;
 //const dlng = 0.02 / 2;
 const dlat = 0.01 * 20;
@@ -179,6 +186,15 @@ const clearMarkers = function() {
   }
 };
 
+const fetchJSONs = async (fns) => {
+  const res = [];
+  for (const fn of fns) {
+    const data = await CSV.fetchJSON(fn);
+    data.forEach(i => res.push(i));
+  }
+  return res;
+};
+
 let cacheddata = null;
 const fetchRefuge = async () => {
   if (cacheddata) return cacheddata;
@@ -186,15 +202,19 @@ const fetchRefuge = async () => {
   // 福井市: fire_hydrants,種別,管轄署所,住所,緯度,経度,口径,備考
   // 倉敷市: 全国地方公共団体コード,ID,地方公共団体名,種別,所在地_全国地方公共団体コード,町字ID,所在地_連結表記,所在地_都道府県,所在地_市区町村,所在地_町字,所在地_番地以下,建物名等(方書),緯度,経度,口径,備考
   // 彦根市: 水利種別(消火栓),水利種別(消火栓)名,市町村(消火栓)名,担当区内通番(消火栓),設置場所-1(消火栓),配管径,Ｘ座標(栓)(座標),Ｙ座標(栓)(座標),緯度(栓)(座標),経度(栓)(座標),備考
-  const data = await CSV.fetchJSON(fn);
+  // 高島市: 都道府県コード又は市区町村コード,NO,都道府県名,市区町村名,種別,住所,方書,緯度（１０進法表記）,経度（１０進法表記）,容量（ｍ3）,備考
+  const data = await fetchJSONs(fns);
   const map = {
     fire_hydrants: "name",
     ID: "name",
     "担当区内通番(消火栓)": "name",
+    NO: "name",
     緯度: "lat",
     経度: "lng",
     "緯度(栓)(座標)": "lat",
     "経度(栓)(座標)": "lng",
+    "緯度（１０進法表記）": "lat",
+    "経度（１０進法表記）": "lng",
     種別: "classified",
     "水利種別(消火栓)名": "classified",
     住所: "address",
@@ -591,7 +611,7 @@ body {
 
 <div class="src">
 APP: <a href=https://creativecommons.org/licenses/by/4.0/ target=_blank>CC BY</a> <a href=https://fukuno.jig.jp/1494 target=_blank>Taisuke Fukuno / Create Everyday</a><br>
-DATA: <a href=https://data.bodik.jp/dataset/252026_shoukasen_20200401/resource/88ae56c2-504e-41f9-92d3-ff1175e8d94e target=_blank>消火栓設置場所一覧 - 消火栓設置場所一覧 - CKAN</a><br>
+DATA: <a href=https://data.bodik.jp/dataset/252123_fire_hydrant_format target=_blank>高島市　消防水利施設（公設）フォーマット（GTFS準拠） - データセット - CKAN</a><br>
 <a href=https://github.com/code4fukui/findhydrant_kurashikicity/>ソースコード on GitHub</a> (forked <a href=https://github.com/code4fukui/findhydrant>findhydrant</a>)<br>
 要望はこちら <a href=https://github.com/code4fukui/findhydrant/issues>Issues on GitHub</a><br>
 fork歓迎、プルリクエストもお気軽に！<br>
